@@ -170,4 +170,71 @@ class SalesAnalyst
     percent = (result.count).to_f/(@invr.count) * 100
     sprintf("%.02f", percent).to_f
   end
+
+  #iteration 4 methods
+
+  def total_revenue_by_date(date)
+    total_revenue_for_date = 0
+    invoices = @invr.find_all do |invoice|
+      invoice.created_at == date
+    end
+    invoices.each do |invoice|
+      if invoice.is_paid_in_full?
+        total_revenue_for_date += invoice.total
+      end
+    end
+    total_revenue_for_date
+  end
+
+  def revenue_by_merchant(id)
+    merchant = @mr.find_by_id(id)
+    invoice_array = merchant.invoices
+    total_revenue = 0
+    invoice_array.each do |invoice|
+      if invoice.is_paid_in_full?
+        total_revenue += invoice.total
+      end
+    end
+    total_revenue
+  end
+
+  def top_revenue_earners(num = 20)
+    merch_by_revenue = {}
+    @merchant_array.each do |merchant|
+      revenue = revenue_by_merchant(merchant.id)
+      merch_by_revenue[merchant] = revenue
+    end
+    merch_by_revenue = merch_by_revenue.sort_by { |key, value| value}.reverse.to_h
+    merch_by_revenue.keys.take(num)
+  end
+
+  def merchants_ranked_by_revenue
+    num = @merchant_array.length
+    top_revenue_earners(num)
+  end
+
+  def merchants_with_pending_invoices
+    merchants = []
+    @merchant_array.each do |merchant|
+      invoice_array = merchant.invoices
+      if invoice_array.any? {|invoice| invoice.is_paid_in_full? == false}
+        merchants << merchant
+      end
+    end
+    merchants
+  end
+
+  def merchants_with_only_one_item
+    @merchant_array.find_all do |merch|
+      merch.items.length == 1
+    end
+  end
+
+  def merchants_with_only_one_item_registered_in_month(month)
+    merch_with_one_item = merchants_with_only_one_item
+    registered_in_month = merch_with_one_item.find_all do |merchant|
+      #month merchant was created == month passed in
+    end
+  end
+
 end

@@ -1,9 +1,10 @@
 class Merchant
-  attr_reader :id, :name, :merchant_repo
+  attr_reader :id, :name, :created_at, :merchant_repo
 
   def initialize(line_of_data, parent = nil)
     @id = line_of_data[:id].to_i
     @name = line_of_data[:name]
+    @created_at = Time.parse(line_of_data[:created_at])
     @merchant_repo = parent
   end
 
