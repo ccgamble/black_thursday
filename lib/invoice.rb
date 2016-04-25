@@ -37,7 +37,6 @@ class Invoice
   def invoice_items
     invoice = self.id
     invoice_repo.find_invoice_items_by_invoice_id(invoice)
-    num =
   end
 
   def customer
@@ -59,16 +58,15 @@ class Invoice
 
   def total
     if is_paid_in_full?
-      items_array = items
+      invoice_item_array = invoice_items
       total = 0
-      items_array.each do |item|
+      invoice_item_array.each do |item|
         price = item.unit_price
-        total += price
+        num = item.quantity
+        total += (num * price)
       end
     end
-    result = sprintf('%.02f', total).to_f
-    result
-    binding.pry
+    total
   end
 
 end
