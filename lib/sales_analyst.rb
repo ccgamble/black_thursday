@@ -233,7 +233,8 @@ class SalesAnalyst
   def merchants_with_only_one_item_registered_in_month(month)
     merch_with_one_item = merchants_with_only_one_item
     registered_in_month = merch_with_one_item.find_all do |merchant|
-      #month merchant was created == month passed in
+      merchant.created_at("%B") == month
+      #need to figure out how to actually get the month name out of this
     end
   end
 
