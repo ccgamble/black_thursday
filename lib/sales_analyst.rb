@@ -9,6 +9,7 @@ class SalesAnalyst
     @items_per_merchant = []
     @merchant_array = @mr.merchant_array
     @ir = sales_engine.items.item_repository
+    @item_repository = sales_engine.items
     @invoices_per_merchant = []
     @invr = sales_engine.invoices.invoice_repository
   end
@@ -204,7 +205,7 @@ class SalesAnalyst
       revenue = revenue_by_merchant(merchant.id)
       merch_by_revenue[merchant] = revenue
     end
-    merch_by_revenue = merch_by_revenue.sort_by { |key, value| value}.reverse.to_h
+    merch_by_revenue = merch_by_revenue.sort_by {|key, value| value}.reverse.to_h
     merch_by_revenue.keys.take(num)
   end
 
@@ -235,6 +236,66 @@ class SalesAnalyst
     registered_in_month = merch_with_one_item.find_all do |merchant|
       merchant.created_at.strftime("%B") == month
     end
+  end
+
+  def most_sold_item_for_merchant(merchant_id)
+    merchant = @mr.find_by_id(merchant_id)
+    successful = find_all_successful_invoices(merchant.invoices)
+    ii_success = find_quantity_of_invoice_items(successful)
+    quantity_array = get_quantity_of_invoice_items(ii_success)
+    iq_hash = create_hash_by_item_id(quantity_array)
+
+    iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
+    highest = iq_hash_sorted.keys[0]
+    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value[0].item_id : nil}.compact
+    find_all_items_by_item_id(item_ids)
+  end
+
+  def find_all_successful_invoices(array)
+    array.find_all do |invoice|
+      invoice.is_paid_in_full?
+    end
+  end
+
+  def find_quantity_of_invoice_items(array)
+    successful_ii = array.map do |invoice|
+      invoice.invoice_items
+    end
+    successful_ii.flatten
+  end
+
+  def get_quantity_of_invoice_items(invoice_items)
+    array_to_be_grouped = []
+    invoice_items.each do |invoice_item|
+      num = invoice_item.quantity
+      num.times do
+        array_to_be_grouped << invoice_item
+      end
+    end
+    array_to_be_grouped
+  end
+
+  def create_hash_by_item_id(array)
+    array.group_by do |invoice_item|
+      find_number_of_instances_of_an_id(array, invoice_item.item_id).length
+    end
+  end
+
+  def find_number_of_instances_of_an_id(array, id)
+    array.find_all do |invoice_instance|
+      invoice_instance.item_id == id
+    end
+  end
+
+  def find_all_items_by_item_id(item_ids)
+    item_ids.map do |id|
+      @item_repository.find_by_id(id)
+    end
+  end
+
+
+  def best_item_for_merchant(merchant_id)
+    #=> item (in terms of revenue generated)
   end
 
 end

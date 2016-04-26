@@ -118,4 +118,10 @@ class SalesAnalystTest < Minitest::Test
     assert_equal Merchant, merchants[0].class
   end
 
+  def test_it_can_find_most_sold_item_for_a_merchant
+    item = @sa.most_sold_item_for_merchant(12334105)
+    assert_equal Array, item.class
+    assert_equal Item, item[0].class
+  end
+
 end

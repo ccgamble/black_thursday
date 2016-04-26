@@ -114,5 +114,9 @@ class SalesEngine
     @customers.find_by_id(customer_id)
   end
 
+  # def find_total_quantity_by_item_id(id)
+  #   @invoice_items.find_total_quantity_by_item_id(id)
+  # end
+
 
 end
