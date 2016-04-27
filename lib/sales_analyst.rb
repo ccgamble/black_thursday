@@ -9,6 +9,7 @@ class SalesAnalyst
     @items_per_merchant = []
     @merchant_array = @mr.merchant_array
     @ir = sales_engine.items.item_repository
+    @item_repository = sales_engine.items
     @invoices_per_merchant = []
     @invr = sales_engine.invoices.invoice_repository
   end
@@ -44,7 +45,9 @@ class SalesAnalyst
   end
 
   def merchants_with_high_item_count
-    item_count = average_items_per_merchant + average_items_per_merchant_standard_deviation
+    avg = average_items_per_merchant
+    stdev = average_items_per_merchant_standard_deviation
+    item_count = avg + stdev
     merchants_highest_count_items(item_count)
   end
 
@@ -99,7 +102,8 @@ class SalesAnalyst
   end
 
   def average_invoices_per_merchant_standard_deviation
-    std_dev = calculate_std_deviation(find_invoice_per_merchant_array, average_invoices_per_merchant)
+    avg = average_invoices_per_merchant
+    std_dev = calculate_std_deviation(find_invoice_per_merchant_array, avg)
   end
 
   def top_merchants_by_invoice_count
@@ -140,6 +144,7 @@ class SalesAnalyst
     result = highest_days.map {|num| array.index(num)}
     format_days_of_the_week(result)
   end
+
   def format_days_of_the_week(highest_days)
     days = highest_days.map do |day|
       if day == 0
@@ -160,4 +165,157 @@ class SalesAnalyst
     end
     days
   end
+
+  def invoice_status(status)
+    result = @invr.find_all {|invoice| invoice.status == status}
+    percent = (result.count).to_f/(@invr.count) * 100
+    sprintf("%.02f", percent).to_f
+  end
+
+  #iteration 4 methods
+
+  def total_revenue_by_date(date)
+    total_revenue_for_date = 0
+    invoices = @invr.find_all do |invoice|
+      invoice.created_at == date
+    end
+    invoices.each do |invoice|
+      if invoice.is_paid_in_full?
+        total_revenue_for_date += invoice.total
+      end
+    end
+    total_revenue_for_date
+  end
+
+  def revenue_by_merchant(id)
+    merchant = @mr.find_by_id(id)
+    invoice_array = merchant.invoices
+    total_revenue = 0
+    invoice_array.each do |invoice|
+      if invoice.is_paid_in_full?
+        total_revenue += invoice.total
+      end
+    end
+    total_revenue
+  end
+
+  def top_revenue_earners(num = 20)
+    merch_by_revenue = {}
+    @merchant_array.each do |merchant|
+      revenue = revenue_by_merchant(merchant.id)
+      merch_by_revenue[merchant] = revenue
+    end
+    merch_by_revenue = merch_by_revenue.sort_by {|key, value| value}.reverse.to_h
+    merch_by_revenue.keys.take(num)
+  end
+
+  def merchants_ranked_by_revenue
+    num = @merchant_array.length
+    top_revenue_earners(num)
+  end
+
+  def merchants_with_pending_invoices
+    merchants = []
+    @merchant_array.each do |merchant|
+      invoice_array = merchant.invoices
+      if invoice_array.any? {|invoice| invoice.is_paid_in_full? == false}
+        merchants << merchant
+      end
+    end
+    merchants
+  end
+
+  def merchants_with_only_one_item
+    @merchant_array.find_all do |merch|
+      merch.items.length == 1
+    end
+  end
+
+  def merchants_with_only_one_item_registered_in_month(month)
+    merch_with_one_item = merchants_with_only_one_item
+    registered_in_month = merch_with_one_item.find_all do |merchant|
+      merchant.created_at.strftime("%B") == month
+    end
+  end
+
+  def most_sold_item_for_merchant(merchant_id)
+    merchant = @mr.find_by_id(merchant_id)
+    successful = find_all_successful_invoices(merchant.invoices)
+    ii_success = find_quantity_of_invoice_items(successful)
+    quantity_array = get_quantity_of_invoice_items(ii_success)
+    iq_hash = create_hash_by_item_id(quantity_array)
+    iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
+    highest = iq_hash_sorted.keys[0]
+    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
+    find_all_items_by_item_id(new_item_array)
+  end
+
+  def find_all_successful_invoices(array)
+    array.find_all do |invoice|
+      invoice.is_paid_in_full?
+    end
+  end
+
+  def find_quantity_of_invoice_items(array)
+    successful_ii = array.map do |invoice|
+      invoice.invoice_items
+    end
+    successful_ii.flatten
+  end
+
+  def get_quantity_of_invoice_items(invoice_items)
+    array_to_be_grouped = []
+    invoice_items.each do |invoice_item|
+      num = invoice_item.quantity
+      num.times do
+        array_to_be_grouped << invoice_item
+      end
+    end
+    array_to_be_grouped
+  end
+
+  def create_hash_by_item_id(array)
+    array.group_by do |invoice_item|
+      find_number_of_instances_of_an_id(array, invoice_item.item_id).length
+    end
+  end
+
+  def find_number_of_instances_of_an_id(array, id)
+    array.find_all do |invoice_instance|
+      invoice_instance.item_id == id
+    end
+  end
+
+  def find_all_items_by_item_id(item_ids)
+    item_ids.map do |invoice_item|
+      @item_repository.find_by_id(invoice_item.item_id)
+    end
+  end
+
+
+  def best_item_for_merchant(merchant_id)
+    merchant = @mr.find_by_id(merchant_id)
+    successful = find_all_successful_invoices(merchant.invoices)
+    ii_success = find_quantity_of_invoice_items(successful)
+    quantity_array = get_quantity_of_invoice_items(ii_success)
+    iq_hash = create_hash_by_revenue(quantity_array)
+    iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
+    highest = iq_hash_sorted.keys[0]
+    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
+    item = find_all_items_by_item_id(new_item_array)
+    item[0]
+  end
+
+  def create_hash_by_revenue(array)
+    array.group_by do |invoice_item|
+      num = find_number_of_instances_of_an_id(array, invoice_item.item_id).length
+      price = invoice_item.unit_price
+      num * price
+    end
+  end
+
+
+
 end

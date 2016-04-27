@@ -3,6 +3,7 @@ require_relative '../lib/merchant_repository'
 require 'pry'
 
 class MerchantRepositoryTest < Minitest::Test
+  attr_reader :merchant1, :merchant2
 
   def setup
     merchant1 = Merchant.new({:id => 12334105, :name => "Shopin1901"})
@@ -13,6 +14,18 @@ class MerchantRepositoryTest < Minitest::Test
 
   def test_it_created_instance_of_merchant_repo_class
     assert_equal MerchantRepository, @merchant_repo.class
+  end
+
+  def test_merchant_repo_loads_the_merchant_repository
+    merchant_repo = MerchantRepository.new
+    assert merchant_repo.merchant_array.empty?
+    # assert_equal merchant_repo.merchant_array = ([merchant1, merchant2])
+    # refute merchant_repo.merchant_array.empty?
+  end
+
+  def test_it_can_return_array_of_all_merchant_instances
+    assert_equal Array, @merchant_repo.all.class
+    assert_equal 2, @merchant_repo.all.length
   end
 
   def test_it_returns_merchant_by_finding_id
@@ -34,5 +47,12 @@ class MerchantRepositoryTest < Minitest::Test
     output = merchant_repo.find_all_by_name("shop")
 
     assert_equal 2, output.length
+  end
+
+  def test_find_customer_calls_its_parent
+    parent = Minitest::Mock.new
+    parent.expect(:find_customers_by_id, nil, [12334105])
+    @merchant_repo.find_customer_by_invoice_customer_id(12334105)
+    assert parent.verify
   end
 end

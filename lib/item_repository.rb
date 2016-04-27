@@ -40,7 +40,6 @@ class ItemRepository
 
   def find_all_by_price(price)
     item_repository.find_all {|item| item.unit_price == price}
-
   end
 
   def find_all_by_price_in_range(range)
@@ -56,5 +55,9 @@ class ItemRepository
   def find_merchant_by_merch_id(merchant_id)
     @se.find_merchant_by_merch_id(merchant_id)
   end
+
+  # def find_total_quantity_by_item_id(id)
+  #   @se.find_total_quantity_by_item_id(id)
+  # end
 
 end

@@ -29,11 +29,15 @@ class MerchantRepository
   end
 
   def find_by_name(find_name)
-    merchant_array.find {|merchant| merchant.name.downcase == find_name.downcase }
+    merchant_array.find do |merchant|
+      merchant.name.downcase == find_name.downcase
+    end
   end
 
   def find_all_by_name(find_name)
-    merchant_array.find_all {|merchant| merchant.name.downcase.include?(find_name.downcase)}
+    merchant_array.find_all do |merchant|
+      merchant.name.downcase.include?(find_name.downcase)
+    end
   end
 
   def find_items_by_merchant_id(merchant_id)
@@ -44,7 +48,9 @@ class MerchantRepository
     @se.find_invoices_by_merch_id(merchant_id)
   end
 
-
+  def find_customer_by_invoice_customer_id(customer_id)
+    @se.find_customers_by_id(customer_id)
+  end
 
 
 
