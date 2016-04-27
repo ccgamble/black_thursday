@@ -57,7 +57,7 @@ class TransactionRepositoryTest < Minitest::Test
 
   def test_it_can_return_an_array_of_credit_card_numbers
     t = repository.find_all_by_credit_card_number("4242424242424242")
-    assert_equal "success",t[0].result
+    assert_equal "success",t.result
   end
 
   def test_it_will_return_an_empty_array_if_credit_card_doesnt_exist

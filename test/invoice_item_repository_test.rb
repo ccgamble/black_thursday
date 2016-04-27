@@ -33,8 +33,22 @@ class InvoiceItemRepositoryTest < Minitest::Test
     assert_equal InvoiceItemRepository, repository.class
   end
 
+  def test_it_inspects
+    assert repository.inspect
+  end
+
+  def test_it_starts_out_empty
+    invoice_item = InvoiceItemRepository.new
+    assert invoice_item.invoice_item_repository.empty?
+  end
+
   def test_it_returns_an_array_of_all_invoice_instances
     assert_equal 2, repository.all.length
+  end
+
+  def test_it_returns_nil_if_invoice_item_repo_is_empty
+    invoice_item = InvoiceItemRepository.new
+    assert_equal nil, invoice_item.all
   end
 
   def test_it_can_return_an_invoice_by_invoice_id

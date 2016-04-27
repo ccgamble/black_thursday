@@ -10,7 +10,7 @@ class InvoiceItemRepository
   end
 
   def inspect
-  "#<#{self.class} #{@invoice_items.size} rows>"
+  "#<#{self.class} #{@invoice_item_repository.size} rows>"
   end
 
   def invoice_item(contents)
@@ -35,12 +35,5 @@ class InvoiceItemRepository
   def find_all_by_invoice_id(id)
     invoice_item_repository.find_all {|inv_item| inv_item.invoice_id == id}
   end
-
-  # def find_total_quantity_by_item_id(id)
-  #   all_invoice_item_instances = find_all_by_item_id(id)
-  #   total = 0
-  #   all_invoice_item_instances.each {|inv_item| total += inv_item.quantity}
-  #   total
-  # end
 
 end
