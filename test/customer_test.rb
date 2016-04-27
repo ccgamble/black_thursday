@@ -1,10 +1,21 @@
 require_relative 'test_helper'
 require_relative '../lib/customer'
+require_relative '../lib/sales_engine'
 
 class CustomerTest < Minitest::Test
-  attr_reader :c, :test_data
+  attr_reader :c, :customers
 
   def setup
+    @se = SalesEngine.from_csv({
+      :items => "./data/items.csv",
+      :merchants => "./data/merchants.csv",
+      :invoices => "./data/invoices.csv",
+      :invoice_items => "./data/invoice_items.csv",
+      :transactions => "./data/transactions.csv",
+      :customers => "./data/customers.csv"})
+
+    @customers = @se.customers
+
     @c = Customer.new({
     :id => 6,
     :first_name => "Joan",
@@ -13,13 +24,6 @@ class CustomerTest < Minitest::Test
     :updated_at => Time.new.to_s
     })
 
-    @test_data = ({
-    :id => 6,
-    :first_name => "Joan",
-    :last_name => "Clarke",
-    :created_at => Time.new.to_s,
-    :updated_at => Time.new.to_s
-    })
   end
 
   def test_it_created_instance_of_invoice_class
@@ -53,11 +57,13 @@ class CustomerTest < Minitest::Test
   end
 
   def test_it_can_return_parent_when_merchants_is_called
-    skip
-    parent = Minitest::Mock.new
-    c = Customer.new(test_data, parent)
-    parent.expect(:find_merchant_by_merch_id, nil, [6])
-    c.merchants
-    assert parent.verify
-    end
+    cust = Customer.new({:id => 1,
+      :first_name => "Joey",
+      :last_name => "Ondricka",
+      :created_at => "2012-03-27 14:54:09 UTC",
+      :updated_at => "2012-03-27 14:54:09 UTC"}, customers)
+      merchant_array = cust.merchants
+    assert_equal Array, merchant_array.class
+    assert_equal 8, merchant_array.length
+  end
 end

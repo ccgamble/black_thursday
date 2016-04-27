@@ -2,7 +2,7 @@ require_relative 'test_helper'
 require_relative '../lib/transaction'
 
 class TransactionTest < Minitest::Test
-  attr_reader :t
+  attr_reader :t, :t2, :parent
 
   def setup
     @t = Transaction.new({
@@ -14,6 +14,18 @@ class TransactionTest < Minitest::Test
       :created_at => Time.new.to_s,
       :updated_at => Time.new.to_s
     })
+
+    @parent = Minitest::Mock.new
+
+    @t2 = Transaction.new({
+      :id => 6,
+      :invoice_id => 8,
+      :credit_card_number => "4242424242424242",
+      :credit_card_expiration_date => "0220",
+      :result => "success",
+      :created_at => Time.new.to_s,
+      :updated_at => Time.new.to_s
+    }, parent)
   end
 
   def test_it_created_instance_of_invoice_class
@@ -29,7 +41,7 @@ class TransactionTest < Minitest::Test
   end
 
   def test_it_returns_credit_card_number
-    assert_equal "4242424242424242", t.credit_card_number
+    assert_equal 4242424242424242, t.credit_card_number
   end
 
   def test_it_returns_credit_card_expiration_date
@@ -52,5 +64,11 @@ class TransactionTest < Minitest::Test
     current_time = Time.new
     assert_equal Time, time.class
     assert_equal current_time.year, time.year
+  end
+
+  def test_it_calls_parent_when_it_calls_invoice
+    parent.expect(:find_invoice_by_transaction_invoice_id, nil, [8])
+    t2.invoice
+    assert parent.verify
   end
 end

@@ -1,7 +1,8 @@
 require 'time'
 
 class Transaction
-  attr_reader :id, :invoice_id, :credit_card_number, :credit_card_expiration_date,
+  attr_reader :id, :invoice_id, :credit_card_number,
+              :credit_card_expiration_date,
               :result, :created_at, :updated_at
 
   def initialize(column, parent = nil)
@@ -16,7 +17,6 @@ class Transaction
   end
 
   def invoice
-    id = self.invoice_id
-    @transaction_repo.find_invoice_by_transaction_invoice_id(id)
+    @transaction_repo.find_invoice_by_transaction_invoice_id(self.invoice_id)
   end
 end

@@ -12,10 +12,10 @@ class Customer
   end
 
   def merchants
-    customer_id = self.id
-    invoice_array = customer_repository.find_invoices_by_customer_id(customer_id)
+    invoice_array = customer_repository.find_invoices_by_customer_id(self.id)
     invoice_array.map do |invoice|
-      customer_repository.find_merchants_by_invoice_merchant_id(invoice.merchant_id)
+      id = invoice.merchant_id
+      customer_repository.find_merchants_by_invoice_merchant_id(id)
     end
   end
 
