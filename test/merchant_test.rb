@@ -2,10 +2,11 @@ require_relative 'test_helper'
 require_relative '../lib/merchant'
 
 class MerchantTest < Minitest::Test
-  attr_reader :test_data
+  attr_reader :test_data, :test_data2
 
   def setup
     @test_data = {:id => 5, :name => "Turing School"}
+    @test_data2 = {:id => 12334105, :name => "Shopin1901", :created_at => 2010-12-10}
   end
 
   def test_it_created_instance_of_merchant_class
@@ -37,6 +38,21 @@ class MerchantTest < Minitest::Test
     parent.expect(:find_invoices_by_merchant_id, nil, [5])
     m.invoices
     assert parent.verify
+  end
+
+  def test_it_can_return_parent_when_customers_is_called
+    skip
+    parent = Minitest::Mock.new
+    m = Merchant.new(test_data, parent)
+    parent.expect(:find_invoices_by_merchant_id, nil, [5])
+    m.customers
+    assert parent.verify
+  end
+
+  def test_it_can_find_customers_based_on_invoices
+    skip
+    m = Merchant.new(test_data2)
+    assert m.customers
   end
 
 end

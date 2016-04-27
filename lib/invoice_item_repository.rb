@@ -36,4 +36,11 @@ class InvoiceItemRepository
     invoice_item_repository.find_all {|invoice_item| invoice_item.invoice_id == find_id }
   end
 
+  # def find_total_quantity_by_item_id(id)
+  #   all_invoice_item_instances = find_all_by_item_id(id)
+  #   total = 0
+  #   all_invoice_item_instances.each {|invoice_item| total += invoice_item.quantity}
+  #   total
+  # end
+
 end

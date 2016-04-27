@@ -56,4 +56,8 @@ class ItemRepository
     @se.find_merchant_by_merch_id(merchant_id)
   end
 
+  # def find_total_quantity_by_item_id(id)
+  #   @se.find_total_quantity_by_item_id(id)
+  # end
+
 end
