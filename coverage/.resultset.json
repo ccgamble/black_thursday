@@ -1,0 +1,37 @@
+{
+  "Unit Tests": {
+    "coverage": {
+      "/Users/lucyfox/turing/1module/black_thursday/lib/item.rb": [
+        1,
+        1,
+        1,
+        null,
+        1,
+        1,
+        null,
+        null,
+        1,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        null,
+        null,
+        1,
+        1,
+        null,
+        null,
+        1,
+        1,
+        null,
+        null,
+        null
+      ]
+    },
+    "timestamp": 1461784389
+  }
+}

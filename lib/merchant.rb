@@ -1,3 +1,5 @@
+require 'time'
+
 class Merchant
   attr_reader :id, :name, :merchant_repo
 
