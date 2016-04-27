@@ -1,26 +1,38 @@
 require_relative 'test_helper'
 require_relative '../lib/merchant_repository'
+require_relative '../lib/sales_engine'
 require 'pry'
 
 class MerchantRepositoryTest < Minitest::Test
-  attr_reader :merchant1, :merchant2
+  attr_reader :merchant1, :merchant2, :merch
 
   def setup
     merchant1 = Merchant.new({:id => 12334105, :name => "Shopin1901"})
     merchant2 = Merchant.new({:id => 12334112, :name => "Candisart"})
     @merchant_repo = MerchantRepository.new
     @merchant_repo.merchant_array = ([merchant1, merchant2])
+
+    @se = SalesEngine.from_csv({
+      :items => "./data/items.csv",
+      :merchants => "./data/merchants.csv",
+      :invoices => "./data/invoices.csv",
+      :invoice_items => "./data/invoice_items.csv",
+      :transactions => "./data/transactions.csv",
+      :customers => "./data/customers.csv"})
+    @merch = @se.merchants
   end
 
   def test_it_created_instance_of_merchant_repo_class
     assert_equal MerchantRepository, @merchant_repo.class
   end
 
-  def test_merchant_repo_loads_the_merchant_repository
+  def test_it_inspects
+    assert merch.inspect
+  end
+
+  def test_merchant_repo_starts_out_empty
     merchant_repo = MerchantRepository.new
     assert merchant_repo.merchant_array.empty?
-    # assert_equal merchant_repo.merchant_array = ([merchant1, merchant2])
-    # refute merchant_repo.merchant_array.empty?
   end
 
   def test_it_can_return_array_of_all_merchant_instances
@@ -49,10 +61,21 @@ class MerchantRepositoryTest < Minitest::Test
     assert_equal 2, output.length
   end
 
-  def test_find_customer_calls_its_parent
-    parent = Minitest::Mock.new
-    parent.expect(:find_customers_by_id, nil, [12334105])
-    @merchant_repo.find_customer_by_invoice_customer_id()
-    assert parent.verify
+  def test_find_items_by_merch_id
+    item_array = @merch.find_items_by_merchant_id(12334105)
+    assert_equal Array, item_array.class
+    assert_equal 3, item_array.length
+  end
+
+  def test_find_invoices_by_merch_id
+    invoice_array = @merch.find_invoices_by_merchant_id(12334105)
+    assert_equal Array, invoice_array.class
+    assert_equal 10, invoice_array.length
+  end
+
+  def test_find_customer_by_invoice_customer_id
+    customer = @merch.find_customer_by_invoice_customer_id(1)
+    assert_equal Customer, customer.class
+    assert_equal "Joey", customer.first_name
   end
 end

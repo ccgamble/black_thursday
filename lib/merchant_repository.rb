@@ -10,7 +10,7 @@ class MerchantRepository
   end
 
   def inspect
-  "#<#{self.class} #{@merchants.size} rows>"
+  "#<#{self.class} #{@merchant_array.size} rows>"
   end
 
   def merchant_repo(merchant_contents)
