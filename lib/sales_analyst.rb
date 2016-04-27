@@ -244,7 +244,6 @@ class SalesAnalyst
     ii_success = find_quantity_of_invoice_items(successful)
     quantity_array = get_quantity_of_invoice_items(ii_success)
     iq_hash = create_hash_by_item_id(quantity_array)
-    #binding.pry #these are getting grouped by quantity, not by the item id
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
     highest = iq_hash_sorted.keys[0]
     item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
@@ -296,7 +295,27 @@ class SalesAnalyst
 
 
   def best_item_for_merchant(merchant_id)
-    #=> item (in terms of revenue generated)
+    merchant = @mr.find_by_id(merchant_id)
+    successful = find_all_successful_invoices(merchant.invoices)
+    ii_success = find_quantity_of_invoice_items(successful)
+    quantity_array = get_quantity_of_invoice_items(ii_success)
+    iq_hash = create_hash_by_revenue(quantity_array)
+    iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
+    highest = iq_hash_sorted.keys[0]
+    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
+    item = find_all_items_by_item_id(new_item_array)
+    item[0]
   end
+
+  def create_hash_by_revenue(array)
+    array.group_by do |invoice_item|
+      num = find_number_of_instances_of_an_id(array, invoice_item.item_id).length
+      price = invoice_item.unit_price
+      num * price
+    end
+  end
+
+
 
 end
