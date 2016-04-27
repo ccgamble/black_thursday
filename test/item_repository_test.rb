@@ -1,5 +1,6 @@
 require_relative 'test_helper'
 require_relative '../lib/item_repository'
+require_relative '../lib/sales_engine'
 
 class ItemRepositoryTest < Minitest::Test
 
@@ -24,6 +25,15 @@ class ItemRepositoryTest < Minitest::Test
 
   def test_it_created_instance_of_item_repo_class
     assert_equal ItemRepository, @inventory.class
+  end
+
+  def test_it_inspects
+    assert @inventory.inspect
+  end
+
+  def test_it_starts_as_empty_repository
+    item_repo = ItemRepository.new
+    assert item_repo.item_repository.empty?
   end
 
   def test_it_can_return_all_items_in_array_item_instances
@@ -118,6 +128,20 @@ class ItemRepositoryTest < Minitest::Test
   def test_it_will_return_empty_array_if_merchant_id_doesnt_exist
     item_instance = @inventory.find_all_by_merchant_id(120931235987)
     assert_equal [], item_instance
+  end
+
+  def test_it_will_find_merchant_by_id
+    se = SalesEngine.from_csv({
+      :items => "./data/items.csv",
+      :merchants => "./data/merchants.csv",
+      :invoices => "./data/invoices.csv",
+      :invoice_items => "./data/invoice_items.csv",
+      :transactions => "./data/transactions.csv",
+      :customers => "./data/customers.csv"})
+    item_repo = se.items
+    merchant = item_repo.find_merchant_by_merch_id(12334105)
+    assert_equal Merchant, merchant.class
+    assert_equal 12334105, merchant.id
   end
 
 end

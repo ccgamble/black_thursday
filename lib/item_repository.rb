@@ -10,7 +10,7 @@ class ItemRepository
   end
 
   def inspect
-  "#<#{self.class} #{@items.size} rows>"
+  "#<#{self.class} #{@item_repository.size} rows>"
   end
 
   def item(item_repo)
@@ -55,9 +55,4 @@ class ItemRepository
   def find_merchant_by_merch_id(merchant_id)
     @se.find_merchant_by_merch_id(merchant_id)
   end
-
-  # def find_total_quantity_by_item_id(id)
-  #   @se.find_total_quantity_by_item_id(id)
-  # end
-
 end
