@@ -293,7 +293,6 @@ class SalesAnalyst
     end
   end
 
-
   def best_item_for_merchant(merchant_id)
     merchant = @mr.find_by_id(merchant_id)
     successful = find_all_successful_invoices(merchant.invoices)
