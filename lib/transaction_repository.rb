@@ -28,15 +28,21 @@ class TransactionRepository
   end
 
   def find_all_by_invoice_id(find_id)
-    transaction_repository.find_all {|transaction| transaction.invoice_id == find_id}
+    transaction_repository.find_all do |transaction|
+      transaction.invoice_id == find_id
+     end
   end
 
   def find_all_by_credit_card_number(cc_number)
-    transaction_repository.find_all {|transaction| transaction.credit_card_number == cc_number}
+    transaction_repository.find_all do |transaction|
+      transaction.credit_card_number == cc_number
+    end
   end
 
   def find_all_by_result(result)
-    transaction_repository.find_all {|transaction| transaction.result.downcase ==  result.downcase}
+    transaction_repository.find_all do |transaction|
+      transaction.result.downcase == result.downcase
+    end
   end
 
   def find_invoice_by_transaction_invoice_id(id)

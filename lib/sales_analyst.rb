@@ -205,8 +205,8 @@ class SalesAnalyst
       revenue = revenue_by_merchant(merchant.id)
       merch_by_revenue[merchant] = revenue
     end
-    merch_by_revenue = merch_by_revenue.sort_by {|key, value| value}.reverse.to_h
-    merch_by_revenue.keys.take(num)
+    merch_revenue = merch_by_revenue.sort_by {|key, value| value}.reverse.to_h
+    merch_revenue.keys.take(num)
   end
 
   def merchants_ranked_by_revenue
@@ -246,7 +246,9 @@ class SalesAnalyst
     iq_hash = create_hash_by_item_id(quantity_array)
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
     highest = iq_hash_sorted.keys[0]
-    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    item_ids = iq_hash_sorted.map do |key, value|
+       key == highest ? value : nil
+     end.compact.flatten
     new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
     find_all_items_by_item_id(new_item_array)
   end
@@ -301,7 +303,9 @@ class SalesAnalyst
     iq_hash = create_hash_by_revenue(quantity_array)
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
     highest = iq_hash_sorted.keys[0]
-    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    item_ids = iq_hash_sorted.map do |key, value|
+       key == highest ? value : nil
+     end.compact.flatten
     new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
     item = find_all_items_by_item_id(new_item_array)
     item[0]
@@ -309,9 +313,9 @@ class SalesAnalyst
 
   def create_hash_by_revenue(array)
     array.group_by do |invoice_item|
-      num = find_number_of_instances_of_an_id(array, invoice_item.item_id).length
+      n = find_number_of_instances_of_an_id(array, invoice_item.item_id).length
       price = invoice_item.unit_price
-      num * price
+      n * price
     end
   end
 

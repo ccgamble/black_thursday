@@ -18,7 +18,4 @@ class Customer
       customer_repository.find_merchants_by_invoice_merchant_id(id)
     end
   end
-
-  #can we get this to work????who knows! 
-
 end

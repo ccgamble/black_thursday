@@ -28,8 +28,8 @@ class ItemRepository
     item_repository.find {|item| item.id == find_id }
   end
 
-  def find_by_name(find_name)
-    item_repository.find {|item| item.name.downcase == find_name.downcase }
+  def find_by_name(name)
+    item_repository.find {|item| item.name.downcase == name.downcase }
   end
 
   def find_all_with_description(find_description)
