@@ -1,5 +1,5 @@
 class Merchant
-  attr_reader :id, :name, :merchant_repo
+  attr_reader :id, :name, :created_at, :merchant_repo
 
   def initialize(line_of_data, parent = nil)
     @id = line_of_data[:id].to_i
@@ -16,9 +16,9 @@ class Merchant
     merchant_repo.find_invoices_by_merchant_id(id)
   end
 
-  # def created_at
-  #   Time.parse(@created_at)
-  # end
+  def created_at
+    Time.parse(@created_at)
+  end
 
   def customers
     invoices_array = invoices
