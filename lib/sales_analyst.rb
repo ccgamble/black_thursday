@@ -244,11 +244,12 @@ class SalesAnalyst
     ii_success = find_quantity_of_invoice_items(successful)
     quantity_array = get_quantity_of_invoice_items(ii_success)
     iq_hash = create_hash_by_item_id(quantity_array)
-
+    #binding.pry #these are getting grouped by quantity, not by the item id
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
     highest = iq_hash_sorted.keys[0]
-    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value[0].item_id : nil}.compact
-    find_all_items_by_item_id(item_ids)
+    item_ids = iq_hash_sorted.map {|key, value| key == highest ? value : nil}.compact.flatten
+    new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
+    find_all_items_by_item_id(new_item_array)
   end
 
   def find_all_successful_invoices(array)
@@ -288,8 +289,8 @@ class SalesAnalyst
   end
 
   def find_all_items_by_item_id(item_ids)
-    item_ids.map do |id|
-      @item_repository.find_by_id(id)
+    item_ids.map do |invoice_item|
+      @item_repository.find_by_id(invoice_item.item_id)
     end
   end
 
