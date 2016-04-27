@@ -19,8 +19,7 @@ class Invoice
   end
 
   def merchant
-    merchant_id = self.merchant_id
-    @invoice_repo.find_merchant_by_invoice_merch_id(merchant_id)
+    @invoice_repo.find_merchant_by_invoice_merch_id(self.merchant_id)
   end
 
   def day_of_the_week
@@ -35,18 +34,15 @@ class Invoice
   end
 
   def invoice_items
-    invoice = self.id
-    invoice_repo.find_invoice_items_by_invoice_id(invoice)
+    invoice_repo.find_invoice_items_by_invoice_id(self.id)
   end
 
   def customer
-    id = self.customer_id
-    invoice_repo.find_customer_by_invoice_customer_id(id)
+    invoice_repo.find_customer_by_invoice_customer_id(self.customer_id)
   end
 
   def transactions
-    invoice_id = self.id
-    invoice_repo.find_transactions_by_invoice_id(invoice_id)
+    invoice_repo.find_transactions_by_invoice_id(self.id)
   end
 
   def is_paid_in_full?

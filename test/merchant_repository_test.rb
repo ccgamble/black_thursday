@@ -52,7 +52,7 @@ class MerchantRepositoryTest < Minitest::Test
   def test_find_customer_calls_its_parent
     parent = Minitest::Mock.new
     parent.expect(:find_customers_by_id, nil, [12334105])
-    @merchant_repo.find_customer_by_invoice_customer_id(12334105)
+    @merchant_repo.find_customer_by_invoice_customer_id()
     assert parent.verify
   end
 end

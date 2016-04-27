@@ -22,13 +22,7 @@ class Item
   end
 
   def merchant
-    id = self.merchant_id
-    item_repo.find_merchant_by_merch_id(id)
+    item_repo.find_merchant_by_merch_id(self.merchant_id)
   end
-
-  # def find_quantity_of_item_by_id
-  #   id = self.id
-  #   item_repo.find_total_quantity_by_item_id(id)
-  # end
 
 end

@@ -1,12 +1,22 @@
 require_relative 'test_helper'
 require_relative '../lib/merchant'
+require_relative '../lib/sales_engine'
+require 'time'
 
 class MerchantTest < Minitest::Test
-  attr_reader :test_data, :test_data2
+  attr_reader :test_data, :test_data2, :se, :merch
 
   def setup
-    @test_data = {:id => 5, :name => "Turing School"}
-    @test_data2 = {:id => 12334105, :name => "Shopin1901", :created_at => 2010-12-10}
+    @se = SalesEngine.from_csv({
+      :items => "./data/items.csv",
+      :merchants => "./data/merchants.csv",
+      :invoices => "./data/invoices.csv",
+      :invoice_items => "./data/invoice_items.csv",
+      :transactions => "./data/transactions.csv",
+      :customers => "./data/customers.csv"})
+    @merch = @se.merchants
+    @test_data = {:id => 5, :name => "Turing School", :created_at => "2015-12-10"}
+    @test_data2 = {:id => 12334105, :name => "Shopin1901", :created_at => "2015-12-10"}
   end
 
   def test_it_created_instance_of_merchant_class
@@ -40,19 +50,18 @@ class MerchantTest < Minitest::Test
     assert parent.verify
   end
 
-  def test_it_can_return_parent_when_customers_is_called
-    skip
-    parent = Minitest::Mock.new
-    m = Merchant.new(test_data, parent)
-    parent.expect(:find_invoices_by_merchant_id, nil, [5])
-    m.customers
-    assert parent.verify
+  def test_it_can_return_when_merchant_was_created
+    m = Merchant.new(test_data)
+    created = m.created_at
+    assert_equal Time, created.class
+    assert_equal 2015, created.year
   end
 
-  def test_it_can_find_customers_based_on_invoices
-    skip
-    m = Merchant.new(test_data2)
-    assert m.customers
+  def test_it_can_return_parent_when_customers_is_called
+    m = Merchant.new(test_data2, @merch)
+    customers = m.customers
+    assert_equal Array, customers.class
+    assert_equal 10, customers.length
   end
 
 end
