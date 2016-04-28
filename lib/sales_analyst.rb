@@ -1,6 +1,7 @@
 require_relative 'sales_engine'
 require 'pry'
 require 'bigdecimal'
+require 'date'
 
 class SalesAnalyst
   def initialize(sales_engine)
@@ -137,31 +138,17 @@ class SalesAnalyst
     array = create_weekday_array
     avg = calculate_the_average(array)
     std_dev = calculate_std_deviation(array, avg)
-    high_num = avg + std_dev
     highest_days = array.find_all do |count|
-      count > high_num
+      count > (avg + std_dev)
     end
     result = highest_days.map {|num| array.index(num)}
     format_days_of_the_week(result)
   end
 
   def format_days_of_the_week(highest_days)
-    days = highest_days.map do |day|
-      if day == 0
-        "Sunday"
-      elsif day == 1
-        "Monday"
-      elsif day == 2
-        "Tuesday"
-      elsif day == 3
-        "Wednesday"
-      elsif day == 4
-        "Thursday"
-      elsif day == 5
-        "Friday"
-      elsif day == 6
-        "Saturday"
-      end
+    day = Proc.new { |d| Date::DAYNAMES[d] }
+    days = highest_days.map do |high_day|
+      day.call(high_day)
     end
     days
   end
@@ -172,17 +159,11 @@ class SalesAnalyst
     sprintf("%.02f", percent).to_f
   end
 
-  #iteration 4 methods
-
   def total_revenue_by_date(date)
     total_revenue_for_date = 0
-    invoices = @invr.find_all do |invoice|
-      invoice.created_at == date
-    end
+    invoices = @invr.find_all {|invoice| invoice.created_at == date}
     invoices.each do |invoice|
-      if invoice.is_paid_in_full?
-        total_revenue_for_date += invoice.total
-      end
+      (total_revenue_for_date += invoice.total) if invoice.is_paid_in_full?
     end
     total_revenue_for_date
   end
@@ -192,9 +173,7 @@ class SalesAnalyst
     invoice_array = merchant.invoices
     total_revenue = 0
     invoice_array.each do |invoice|
-      if invoice.is_paid_in_full?
-        total_revenue += invoice.total
-      end
+      (total_revenue += invoice.total) if invoice.is_paid_in_full?
     end
     total_revenue
   end
@@ -245,12 +224,15 @@ class SalesAnalyst
     quantity_array = get_quantity_of_invoice_items(ii_success)
     iq_hash = create_hash_by_item_id(quantity_array)
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
-    highest = iq_hash_sorted.keys[0]
-    item_ids = iq_hash_sorted.map do |key, value|
-       key == highest ? value : nil
-     end.compact.flatten
+    item_ids = find_invoice_items_by_sorted_hash_keys(iq_hash_sorted)
     new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
     find_all_items_by_item_id(new_item_array)
+  end
+
+  def find_invoice_items_by_sorted_hash_keys(hash)
+    hash.map do |key, value|
+       key == (hash.keys[0]) ? value : nil
+     end.compact.flatten
   end
 
   def find_all_successful_invoices(array)
@@ -302,10 +284,7 @@ class SalesAnalyst
     quantity_array = get_quantity_of_invoice_items(ii_success)
     iq_hash = create_hash_by_revenue(quantity_array)
     iq_hash_sorted = iq_hash.sort_by {|key, value| key}.reverse.to_h
-    highest = iq_hash_sorted.keys[0]
-    item_ids = iq_hash_sorted.map do |key, value|
-       key == highest ? value : nil
-     end.compact.flatten
+    item_ids = find_invoice_items_by_sorted_hash_keys(iq_hash_sorted)
     new_item_array = item_ids.uniq {|invoice_item| invoice_item.item_id}
     item = find_all_items_by_item_id(new_item_array)
     item[0]

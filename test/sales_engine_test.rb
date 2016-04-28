@@ -128,4 +128,34 @@ class SalesEngineTest < Minitest::Test
     assert_equal "Heber", customer.first_name
   end
 
+  def test_it_can_find_items_by_invoice_item_id
+    items = @se.find_items_by_invoice_item_id(263519844)
+    assert_equal Item, items.class
+    assert_equal 263519844, items.id
+    assert_equal "Catnip Pillow / Cat Toy Containing Strong Dried CATNIP", items.name
+  end
+
+  def test_it_can_find_invoice_by_id
+    invoice = @se.find_invoice_with_transaction_invoice_id(13)
+    assert_equal Invoice, invoice.class
+    assert_equal :shipped, invoice.status
+  end
+
+  def test_it_can_find_invoices_by_customer_id
+    invoices = @se.find_customer_by_invoice_customer_id(1)
+    assert_equal 8, invoices.length
+  end
+
+  def test_it_can_find_customers_by_customer_id
+    customer = @se.find_customers_by_id(1)
+    assert_equal Customer, customer.class
+    assert_equal "Joey", customer.first_name
+  end
+
+  def test_it_can_find_transactions_by_invoice_id()
+    transactions = @se.find_transactions_by_invoice_id(1)
+    assert_equal Array, transactions.class
+    assert_equal Transaction, transactions[0].class
+  end
+
 end
