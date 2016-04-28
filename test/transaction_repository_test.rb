@@ -1,5 +1,6 @@
 require_relative 'test_helper'
 require_relative '../lib/transaction_repository'
+require_relative '../lib/sales_engine'
 
 class TransactionRepositoryTest < Minitest::Test
   attr_reader :t1, :t2, :repository
@@ -33,6 +34,15 @@ class TransactionRepositoryTest < Minitest::Test
     assert_equal TransactionRepository, repository.class
   end
 
+  def test_it_inspects
+    assert repository.inspect
+  end
+
+  def test_it_starts_out_empty
+    new_repo = TransactionRepository.new
+    assert new_repo.transaction_repository.empty?
+  end
+
   def test_it_returns_an_array_of_all_invoice_instances
     assert_equal 2, repository.all.length
   end
@@ -42,7 +52,7 @@ class TransactionRepositoryTest < Minitest::Test
     assert_equal "failure", transaction.result
   end
 
-  def test_it_will_return_nil_if_invoice_item_does_not_exist
+  def test_it_will_return_nil_if_id_does_not_exist
     assert_equal nil, repository.find_by_id(124)
   end
 
@@ -56,8 +66,8 @@ class TransactionRepositoryTest < Minitest::Test
   end
 
   def test_it_can_return_an_array_of_credit_card_numbers
-    t = repository.find_all_by_credit_card_number("4242424242424242")
-    assert_equal "success",t.result
+    t = repository.find_all_by_credit_card_number(4242424242424242)
+    assert_equal "success",t[0].result
   end
 
   def test_it_will_return_an_empty_array_if_credit_card_doesnt_exist
@@ -72,6 +82,21 @@ class TransactionRepositoryTest < Minitest::Test
   def test_it_returns_empty_array_if_result_doesnt_exist
     t = repository.find_all_by_result("woo")
     assert t.empty?
+  end
+
+  def test_it_can_find_invoice_with_transactions
+    se = SalesEngine.from_csv({
+      :items => "./data/items.csv",
+      :merchants => "./data/merchants.csv",
+      :invoices => "./data/invoices.csv",
+      :invoice_items => "./data/invoice_items.csv",
+      :transactions => "./data/transactions.csv",
+      :customers => "./data/customers.csv"})
+    transaction = se.transactions
+
+    invoice = transaction.find_invoice_by_transaction_invoice_id(1)
+    assert_equal Invoice, invoice.class
+    assert_equal 1, invoice.id
   end
 
 end

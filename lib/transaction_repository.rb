@@ -9,7 +9,7 @@ class TransactionRepository
   end
 
   def inspect
-  "#<#{self.class} #{@repository.size} rows>"
+  "#<#{self.class} #{@transaction_repository.size} rows>"
   end
 
   def transaction(contents)
