@@ -68,7 +68,7 @@ class InvoiceTest < Minitest::Test
   end
 
   def test_it_knows_day_of_the_week
-    assert_equal "3",invoice.day_of_the_week
+    assert_equal "4",invoice.day_of_the_week
   end
 
   def test_it_returns_current_time
